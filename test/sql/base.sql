@@ -1,4 +1,4 @@
-\set ECHO 0
+\set ECHO none
 BEGIN;
 \i sql/validadores.sql
 \set ECHO all

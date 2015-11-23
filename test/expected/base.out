@@ -1,4 +1,4 @@
-\set ECHO 0
+\set ECHO none
 SELECT cpf_valido(59328253241);
  cpf_valido 
 ------------

@@ -1,0 +1,84 @@
+\set ECHO none
+SELECT valida_cnpj(53870617000124);
+ valida_cnpj 
+-------------
+ t
+(1 row)
+
+SELECT 53870617000124 ##? AS cnpj_valido;
+ cnpj_valido 
+-------------
+ t
+(1 row)
+
+SELECT 35705388000100 ##? AS cnpj_valido;
+ cnpj_valido 
+-------------
+ t
+(1 row)
+
+SELECT NOT 00000000000191 ##? AS cnpj_valido;
+ cnpj_valido 
+-------------
+ t
+(1 row)
+
+SELECT NOT 51255388000100 ##? AS cnpj_valido;
+ cnpj_valido 
+-------------
+ t
+(1 row)
+
+CREATE TABLE empresa (
+    numero_doc cnpj
+);
+INSERT INTO empresa VALUES(35705388000100);
+INSERT INTO empresa VALUES(53870617000124);
+SAVEPOINT cnpj_invalido1;
+INSERT INTO empresa VALUES(00000000000191);
+ERROR:  value for domain cnpj violates check constraint "cnpj_check"
+ROLLBACK TO cnpj_invalido1;
+SAVEPOINT cnpj_invalido2;
+INSERT INTO empresa VALUES(51255388000100);
+ERROR:  value for domain cnpj violates check constraint "cnpj_check"
+ROLLBACK TO cnpj_invalido2;
+SAVEPOINT valida_formata_cnpj;
+SELECT formata_cnpj(53870617000124);
+    formata_cnpj     
+---------------------
+  53.870.617/0001-24
+(1 row)
+
+SELECT formata_cnpj(12345);
+ERROR:  function formata_cnpj(integer) is not unique
+LINE 1: SELECT formata_cnpj(12345);
+               ^
+HINT:  Could not choose a best candidate function. You might need to add explicit type casts.
+ROLLBACK TO valida_formata_cnpj;
+SAVEPOINT valida_operadores;
+SELECT 53870617000124 ##;
+      ?column?       
+---------------------
+  53.870.617/0001-24
+(1 row)
+
+SELECT 53870617000124 ##?;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT 5124 ##; -- vai passar assim mesmo
+      ?column?       
+---------------------
+  00.000.000/0051-24
+(1 row)
+
+SELECT 53870617000121 ##?; -- vai falhar no digito
+ ?column? 
+----------
+ f
+(1 row)
+
+ROLLBACK TO valida_operadores;
+ROLLBACK;
